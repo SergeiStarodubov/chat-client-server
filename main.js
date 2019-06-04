@@ -1,4 +1,4 @@
-const handler = (req, res) => res.end(); //whithout it the browser cannot connect to server
+const handler = (req, res) => res.end();
 
 const app = require('http').createServer(handler);
 const readline = require('readline');
@@ -16,17 +16,36 @@ const setHeader = (header) => {
   rl.prompt();
 }
 
-setHeader('SERVER>');
+setHeader('Admin>');
+ 
+let bd = [];
+let history = [];
 
 io.on("connection", (socket) => {  
-  rl.on('line', data => {
-    setHeader('SERVER>');
-    socket.emit('data', {data});
-  }); 
-  socket.on("client", (data) => {
-    setHeader("CLIENT>");
-    console.log(data);
-    setHeader("SERVER>");
+  
+  rl.on('line', text => {
+    setHeader('Admin>');
+    history.push({name: "Admin>", message: text})
+    socket.emit('data', {name: "Admin>", message: text});
   });
+
+  socket.on("client", (data) => {
+    socket.emit("data", {name: data.name, message: data.message})
+    for (let user of bd) {
+      if (user.name === data.name) {
+        user.messages.push(data.message);
+        history.push({name: user.name, message: data.message} )
+      }
+    }
+    setHeader("Admin>");
+  });
+
+
+  socket.on("register", (clientName) => {
+    let client = {name: clientName, messages: []};
+    bd.push(client);
+  });
+
+  socket.emit("history", history);
 });
 

@@ -13,8 +13,9 @@
   <div class="container">
     <p><input type="text" style = "height: 35px; margin-top: 5px"> </p>
     <button type="button" class="btn btn-primary">send the message</button>
+    <p><button type="button" id = "register" class="btn btn-primary mt-1">register</button></p>
     <hr>
-    <h3>the Server says: </h3>
+    <h3>Chat: </h3>
     <h6 id = "server"></h6>
   </div>
 
@@ -22,9 +23,23 @@
     const socket = io('http://localhost:3000');
     const text = document.querySelector("input");
     const server = document.querySelector("#server");
+    let clientName = "";
+
+    const setLine = (obj) => {
+      let line = document.createElement("h6");
+      line.innerHTML = obj.name + obj.message;
+      document.querySelector(".container").append(line);
+    }
+
+    document.querySelector("#register").addEventListener("click", () => {
+      clientName = text.value + ">";
+      text.value = "";
+      socket.emit("register", clientName);
+    })
 
     const sendMessage = () => {
-      socket.emit("client", text.value);
+      if (clientName === "") return;
+      socket.emit("client", {name: clientName, message: text.value});
       text.value = "";
       server.innerHTML = "";
     }
@@ -35,8 +50,15 @@
     })
 
     socket.on('data', data => {
-      server.innerHTML = data.data;
+      setLine(data);
     });
+
+    socket.on("history", (data) => {
+      for (let elem of data) {
+        setLine(elem);
+      }
+    })
+
   </script>
 </body>
 </html>
