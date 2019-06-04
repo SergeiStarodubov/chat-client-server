@@ -2,6 +2,8 @@
 
 ## Getting started: 
 
+in root of the project run: 
+
 * `npm install`
 * `node main.js`
 
