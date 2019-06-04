@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <title>Document</title>
+</head>
+<body>
+
+  <div class="container">
+    <p><input type="text" style = "height: 35px; margin-top: 5px"> </p>
+    <button type="button" class="btn btn-primary">send the message</button>
+    <hr>
+    <h3>the Server says: </h3>
+    <h6 id = "server"></h6>
+  </div>
+
+  <script>
+    const socket = io('http://localhost:3000');
+    const text = document.querySelector("input");
+    const server = document.querySelector("#server");
+
+    const sendMessage = () => {
+      socket.emit("client", text.value);
+      text.value = "";
+      server.innerHTML = "";
+    }
+
+    document.querySelector("button").addEventListener("click", sendMessage);
+    text.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();  
+    })
+
+    socket.on('data', data => {
+      server.innerHTML = data.data;
+    });
+  </script>
+</body>
+</html>
